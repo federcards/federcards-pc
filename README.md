@@ -21,14 +21,13 @@ produced by [ZeitControl](https://www.zeitcontrol.de). Current features are
 
 For maximal safety purposes, entries on card are protected with 2 passwords:
 
-1. The first is a secret that is generated each time when an client trying
-   talk to the card. The secret is revealed to the client software only when
-   the client software is told with a password that was burned into card on
-   factory reset. This password can be either entered by user, or stored
-   in a safe server on the cloud(or just part of it--the user may still be
-   required to type in its own share).
-   After the secret is established, it is used to encrypt all following data
-   transmissions between card and software.
+1. There is a secret key generated on card each time when an client trying talk
+   to the card. The secret key is revealed to the client software only when the
+   client software is told with a password that was burned into card on factory
+   reset.  This password can be either entered by user, or stored in a safe
+   server on the cloud(or just part of it--the user may still be required to
+   type in its own share).  After the secret key is established, it is used to
+   encrypt all following data transmissions between card and software.
 2. The second is a PIN when accessing an encrypted storage on card. Combined
    with the shared secret in (1), this PIN is used to decrypt the entries
    on card. **This PIN is allowed to be entered ONLY ONCE, all data will lost
