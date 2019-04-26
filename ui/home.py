@@ -4,7 +4,7 @@ import curses
 from npyscreen import *
 
 
-class FederMainForm(FormMutt):
+class FederHomeForm(FormMutt):
 
     MAIN_WIDGET_CLASS = MultiLineAction
     COMMAND_WIDGET_CLASS = FixedText
@@ -12,16 +12,9 @@ class FederMainForm(FormMutt):
     def __init__(self, parent):
         self.parent = parent
         self.io = parent.io
+        self.initialEntriesGot = False
         FormMutt.__init__(self)
 
-    def __refreshEntries(self):
-        count = int(self.io("COUNT").arguments[0])
-        assert count >= 0
-        self.count = count
-        self.wMain.values = ["test", "test2"]
-        for i in range(0, self.count):
-            self.wMain.values.append(self.io("NEXTMETA"))
-            
     def create(self):
         FormMutt.create(self)
         handlers = {
@@ -29,19 +22,19 @@ class FederMainForm(FormMutt):
             curses.ascii.CR:  self.onItemSelection,
             curses.ascii.NL:  self.onItemSelection,
             "^P":             self.onChangePassword,
+            "^R":             self.onRefresh,
         }
         self.wStatus1.value = " Feder Card Password Manager "
         self.wStatus2.value = " Actions "
         self.wCommand.value = "  ".join([
             "[Ctrl+A Add]",
-            "[Ctrl+R Rename]",
-            "[F5 Refresh]",
-            "[Ctrl+P Change Password]",
+            "[Ctrl+E Edit]",
+            "[Ctrl+R Refresh]",
             "[Ctrl+X Delete]",
+            "[Ctrl+P Change Password]",
             "[ESC Quit]",
         ])
         self.wMain.add_handlers(handlers)
-        self.__refreshEntries()
 
     def onKeypressESC(self, *args):
         if notify_yes_no(
@@ -56,3 +49,13 @@ class FederMainForm(FormMutt):
 
     def onChangePassword(self, *args):
         self.parent.switchForm("ChangePassword")
+
+    def onRefresh(self, *args):
+        self.parent.switchForm("Refresh")
+        self.parent.refresher.refreshEntries()
+
+
+    def beforeEditing(self):
+        if not self.initialEntriesGot:
+            self.onRefresh()
+            self.initialEntriesGot = True

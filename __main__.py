@@ -2,10 +2,8 @@
 
 from .login import login
 from .session import FederSession 
+from threading import Timer
 
 
 io = login()
-#io = None
-
 FederSession(io).run()
-

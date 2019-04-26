@@ -5,11 +5,12 @@ import signal
 from npyscreen import *
 from .theme import FederTheme
 import curses
-from .card_extraction_observer import CardExtractionObserver
 
-from .ui.main import FederMainForm
+from .ui.home import FederHomeForm
 from .ui.change_password import FederChangePasswordForm
-
+from .ui.refresh import FederRefreshForm
+from .card_extraction_observer import CardExtractionObserver
+from .cardio import CardIO
 
 
 
@@ -22,6 +23,7 @@ class FederSession(NPSAppManaged):
         NPSAppManaged.__init__(self)
         self.io = io
         self.setUpCardObserver()
+        self.initialEntriesGot = False
 
     def setUpCardObserver(self):
         self.cardObserver = CardExtractionObserver(self.terminate)
@@ -36,10 +38,12 @@ class FederSession(NPSAppManaged):
 
     def onStart(self):
         #setTheme(FederTheme)
-        self.registerForm("MAIN", FederMainForm(self))
+        self.refresher = FederRefreshForm(self)
+        self.home = FederHomeForm(self)
+
+        self.registerForm("Refresh", self.refresher)
         self.registerForm("ChangePassword", FederChangePasswordForm(self))
-
-
+        self.registerForm("MAIN", self.home)
 
 
 
