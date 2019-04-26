@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 
 import os
+import signal
 from npyscreen import *
+from .theme import FederTheme
 import curses
+from .card_extraction_observer import CardExtractionObserver
 
 
 class FederMainForm(FormMutt):
@@ -46,7 +49,8 @@ class FederMainForm(FormMutt):
     def onKeypressESC(self, *args):
         if notify_yes_no(
             "Do you really want to exit the program?",
-            title="Confirm"
+            title="Confirm",
+            form_color="WARNING",
         ):
             exit()
 
@@ -63,9 +67,21 @@ class FederSession(NPSAppManaged):
     def __init__(self, io):
         NPSAppManaged.__init__(self)
         self.io = io
+        self.setUpCardObserver()
+
+    def setUpCardObserver(self):
+        self.cardObserver = CardExtractionObserver(self.terminate)
+
+    def terminate(self):
+        # clean up as with <https://github.com/npcole/npyscreen/blob/master/npyscreen/npyssafewrapper.py>
+        curses.echo()
+        curses.nocbreak()
+        curses.endwin()
+        # kill and no wait of anything
+        os.kill(os.getpid(), signal.SIGKILL)
 
     def onStart(self):
-        setTheme(Themes.ElegantTheme)
+        #setTheme(FederTheme)
         self.registerForm("MAIN", FederMainForm(self))
 
 
