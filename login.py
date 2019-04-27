@@ -26,6 +26,7 @@ def login(factoryReset=False):
         exit()
 
     cardIO = CardIO(cardService)
+
     return cardIO # XXX debug
 
     # 1. Check status

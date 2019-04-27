@@ -21,6 +21,7 @@ class FederHomeForm(FormMutt):
             curses.ascii.ESC: self.onKeypressESC,
             curses.ascii.CR:  self.onItemSelection,
             curses.ascii.NL:  self.onItemSelection,
+            "^A":             self.onAddEntry,
             "^P":             self.onChangePassword,
             "^R":             self.onRefresh,
         }
@@ -42,10 +43,13 @@ class FederHomeForm(FormMutt):
             title="Confirm",
             form_color="WARNING",
         ):
-            exit()
+            self.parent.terminate()
 
     def onItemSelection(self, *args):
         notify_wait(str(self.wMain.value))
+
+    def onAddEntry(self, *args):
+        self.parent.switchForm("Add")
 
     def onChangePassword(self, *args):
         self.parent.switchForm("ChangePassword")
@@ -53,7 +57,6 @@ class FederHomeForm(FormMutt):
     def onRefresh(self, *args):
         self.parent.switchForm("Refresh")
         self.parent.refresher.refreshEntries()
-
 
     def beforeEditing(self):
         if not self.initialEntriesGot:
