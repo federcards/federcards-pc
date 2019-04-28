@@ -14,7 +14,7 @@ class FederTOTPPreviewField(Textfield):
         self.parent = kvargs["parent"]
         self.io = self.parent.io
         del kvargs["parent"]
-        kvargs["value"] = "..."
+        kvargs["value"] = "(LOADING...WAIT...)"
         self.secret = None 
         self.source = None 
         self.updating = False
@@ -32,10 +32,18 @@ class FederTOTPPreviewField(Textfield):
             return self.io(
                 b"TESTHOTP=" + self.secret.hex().encode("ascii") +\
                 b"," + timestamp).arguments[0]
+        if self.source is not None:
+            assert type(self.source) == int
+            ret = self.io(b"GETDATA=%d,%s,8" % (self.source, timestamp))
+            if ret.typeof("GETDATA") and ret.arguments[0] == "HOTP":
+                return ret.arguments[1]
+            return "ERROR::%s" % ret.command
         return "ERROR"
         
     def activateUpdate(self):
         self.oldTimestamp = ""
+        self.value = "(LOADING...WAIT...)"
+        self.display()
         self.updating = True
 
     def deactivateUpdate(self):
@@ -51,5 +59,5 @@ class FederTOTPPreviewField(Textfield):
                     self.value = self.updateFromCard(timestamp)
                     self.display()
                     self.oldTimestamp = timestamp
-            time.sleep(1)
+            time.sleep(0.5)
 

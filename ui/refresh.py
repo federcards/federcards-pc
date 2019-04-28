@@ -2,6 +2,24 @@
 import curses
 from npyscreen import *
 
+class FederEntry:
+
+    PASSWORD = "PWD"
+    HOTP = "HOTP"
+
+    def __init__(self, nextmeta):
+        assert nextmeta.typeof("NEXTMETA")
+        index, entrytype, label = nextmeta.arguments[:3]
+
+        self.index = int(index)
+        self.entrytype = entrytype
+        self.label = bytes.fromhex(label).decode("ascii") # TODO filter non-printable chars
+
+        assert self.index > 0
+        assert self.entrytype in [self.PASSWORD, self.HOTP]
+
+
+
 class FederRefreshForm(FormBaseNew):
 
     DEFAULT_LINES = 6
@@ -23,12 +41,19 @@ class FederRefreshForm(FormBaseNew):
         self.prompt.values = ["Found %d items." % count, ""]
         self.display()
 
+        refreshedList = []
+
         for i in range(0, count):
-            self.io("NEXTMETA")
+            try:
+                newentry = FederEntry(self.io("NEXTMETA"))
+            except:
+                continue
+            refreshedList.append(newentry)
             self.prompt.values[1] = "Downloading: %d of %d" % ((i+1, count))
             self.display()
 
         curses.napms(750)
         self.display()
+        self.parent.home.wMain.values = refreshedList
         self.parent.switchForm("MAIN")
         self.parent.home.display()

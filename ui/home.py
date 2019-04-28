@@ -4,9 +4,17 @@ import curses
 from npyscreen import *
 
 
+class FederHomeMenu(MultiLineAction):
+
+    def __init__(self, *args, **kvargs):
+        MultiLineAction.__init__(self, *args, **kvargs)
+
+    def display_value(self, entry):
+        return entry.entrytype + " | " + entry.label
+
 class FederHomeForm(FormMutt):
 
-    MAIN_WIDGET_CLASS = MultiLineAction
+    MAIN_WIDGET_CLASS = FederHomeMenu 
     COMMAND_WIDGET_CLASS = FixedText
 
     def __init__(self, parent):
@@ -19,8 +27,6 @@ class FederHomeForm(FormMutt):
         FormMutt.create(self)
         handlers = {
             curses.ascii.ESC: self.onKeypressESC,
-            curses.ascii.CR:  self.onItemSelection,
-            curses.ascii.NL:  self.onItemSelection,
             "^A":             self.onAddEntry,
             "^P":             self.onChangePassword,
             "^R":             self.onRefresh,
@@ -36,6 +42,8 @@ class FederHomeForm(FormMutt):
             "[ESC Quit]",
         ])
         self.wMain.add_handlers(handlers)
+        self.wMain.actionHighlighted = \
+            lambda act, keypress: self.onItemSelection(act)
 
     def onKeypressESC(self, *args):
         if notify_yes_no(
@@ -45,8 +53,11 @@ class FederHomeForm(FormMutt):
         ):
             self.parent.terminate()
 
-    def onItemSelection(self, *args):
-        notify_wait(str(self.wMain.value))
+    def onItemSelection(self, entry):
+        if entry.entrytype == entry.HOTP:
+            self.parent.accessTOTP.activateAccess(entry.index)
+            self.parent.switchForm("AccessTOTP")
+            
 
     def onAddEntry(self, *args):
         self.parent.switchForm("Add")
