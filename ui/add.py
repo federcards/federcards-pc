@@ -8,6 +8,8 @@ from .wgTOTP import FederTOTPPreviewField
 
 
 def addToCard(io, name, password, isHOTP=False):
+    """`name` and `password` are raw string or bytes."""
+
     command = "ADDHOTPENTRY" if isHOTP else "ADDPWDENTRY"
     addret = io(command)
     if not (addret.typeof("ADDHOTPENTRY") or addret.typeof("ADDPWDENTRY")):
@@ -138,6 +140,7 @@ class FederAddEntryForm(ActionPopup):
             return
 
         if selection == 1:
+            # adding TOTP, check for credential validity and call preview.
             secret = credential.strip().upper().encode("ascii")
             secret += ( math.ceil(len(secret) / 8) * 8 - len(secret) ) * b"="
             try:
@@ -149,8 +152,18 @@ class FederAddEntryForm(ActionPopup):
             self.parent.previewTOTP.activatePreview(label, secret)
             self.parent.switchForm("PreviewTOTP")
         else:
-            
-            notify_wait("abcd")
+            # adding Password
+            success = addToCard(
+                self.io,
+                name=label,
+                password=credential,
+                isHOTP=False
+            )
+            # on success, clear all forms and return
+            if success:
+                self.clearForm()
+                self.parent.switchForm("MAIN")
+                self.parent.home.onRefresh()
 
     def clearForm(self):
         self.txtName.value = ""        

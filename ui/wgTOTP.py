@@ -27,16 +27,17 @@ class FederTOTPPreviewField(Textfield):
         self.updatingThread.start()
 
     def updateFromCard(self, timestamp):   
+        formatter = lambda s: s[:-6] + " " + s[-6:]
         if self.secret is not None:
             assert type(self.secret) == bytes
-            return self.io(
+            return formatter(self.io(
                 b"TESTHOTP=" + self.secret.hex().encode("ascii") +\
-                b"," + timestamp).arguments[0]
+                b"," + timestamp).arguments[0])
         if self.source is not None:
             assert type(self.source) == int
             ret = self.io(b"GETDATA=%d,%s,8" % (self.source, timestamp))
             if ret.typeof("GETDATA") and ret.arguments[0] == "HOTP":
-                return ret.arguments[1]
+                return formatter(ret.arguments[1])
             return "ERROR::%s" % ret.command
         return "ERROR"
         

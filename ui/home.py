@@ -35,7 +35,6 @@ class FederHomeForm(FormMutt):
         self.wStatus2.value = " Actions "
         self.wCommand.value = "  ".join([
             "[Ctrl+A Add]",
-            "[Ctrl+E Edit]",
             "[Ctrl+R Refresh]",
             "[Ctrl+X Delete]",
             "[Ctrl+P Change Password]",
@@ -55,8 +54,11 @@ class FederHomeForm(FormMutt):
 
     def onItemSelection(self, entry):
         if entry.entrytype == entry.HOTP:
-            self.parent.accessTOTP.activateAccess(entry.index)
             self.parent.switchForm("AccessTOTP")
+            self.parent.accessTOTP.activateAccess(entry.index)
+        elif entry.entrytype == entry.PASSWORD:
+            self.parent.switchForm("AccessPassword")
+            self.parent.accessPassword.activateAccess(entry.index)
             
 
     def onAddEntry(self, *args):

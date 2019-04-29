@@ -44,6 +44,7 @@ class FederSession(NPSAppManaged):
         self.home = FederHomeForm(self)
         self.previewTOTP = FederPreviewTOTPForm(self)
         self.accessTOTP = FederTOTPAccessForm(self)
+        self.accessPassword = FederPasswordAccessForm(self)
         self.add = FederAddEntryForm(self)
 
         self.registerForm("Refresh", self.refresher)
@@ -51,4 +52,5 @@ class FederSession(NPSAppManaged):
         self.registerForm("Add", self.add)
         self.registerForm("PreviewTOTP", self.previewTOTP)
         self.registerForm("AccessTOTP", self.accessTOTP)
+        self.registerForm("AccessPassword", self.accessPassword)
         self.registerForm("MAIN", self.home)
