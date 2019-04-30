@@ -54,6 +54,7 @@ class FederRefreshForm(FormBaseNew):
 
         curses.napms(750)
         self.display()
+        self.parent.home.wMain.value = []
         self.parent.home.wMain.values = refreshedList
         self.parent.switchForm("MAIN")
         self.parent.home.display()

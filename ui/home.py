@@ -2,12 +2,13 @@
 
 import curses
 from npyscreen import *
+from .wgMultiselect import MultiSelectAction 
 
 
-class FederHomeMenu(MultiLineAction):
+class FederHomeMenu(MultiSelectAction):
 
     def __init__(self, *args, **kvargs):
-        MultiLineAction.__init__(self, *args, **kvargs)
+        MultiSelectAction.__init__(self, *args, **kvargs)
 
     def display_value(self, entry):
         return entry.entrytype + " | " + entry.label
@@ -30,6 +31,7 @@ class FederHomeForm(FormMutt):
             "^A":             self.onAddEntry,
             "^P":             self.onChangePassword,
             "^R":             self.onRefresh,
+            "^X":             self.onDelete,
         }
         self.wStatus1.value = " Feder Card Password Manager "
         self.wStatus2.value = " Actions "
@@ -69,6 +71,21 @@ class FederHomeForm(FormMutt):
 
     def onRefresh(self, *args):
         self.parent.switchForm("Refresh")
+        self.parent.refresher.refreshEntries()
+
+    def onDelete(self, *args):
+        entries = self.wMain.get_selected_objects()
+        count = len(entries)
+        if count < 1: return
+        if not notify_yes_no(
+            "Sure to delete selected %d entr%s?" % (
+                count,
+                "ies" if count > 1 else "y"
+            )
+        ):
+            return
+        for entry in entries:
+            self.io("DELENTRY=%d" % entry.index)
         self.parent.refresher.refreshEntries()
 
     def beforeEditing(self):
